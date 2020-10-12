@@ -1,4 +1,4 @@
-# Envcanlib
+# environment-canada-data-mining
 Python3 package to download information from Environment Canada: Whether Information
 
 ## Description
