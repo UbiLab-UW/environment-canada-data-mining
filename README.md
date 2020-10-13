@@ -47,6 +47,9 @@ metaData=None)
         metaData: pandas.DataFrame, optional
 
             In case dataFormat is passed as 'oneFile' this dataframe will be used to get more information about the stations. This parameter is always optional.
+            
+        fileName: dict, optional 
+            Dictionary to name each file. Format: {'ID1':filename1, 'ID2':filename2}
 
     Returns:
 
