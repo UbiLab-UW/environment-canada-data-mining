@@ -1,4 +1,8 @@
-# environment-canada-data-mining
+# Authors
+
+**Guilherme de Brito Abreu** - Student at University of Campinas
+
+# Environment Canada Data Mining
 Python3 package to download information from Environment Canada: Whether Information
 
 ## Description
