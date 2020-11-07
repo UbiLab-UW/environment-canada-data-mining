@@ -9,10 +9,10 @@ from envcanlib import downloadData, to_sql, from_sql
 import pandas as pd
 
 conn_string = "DRIVER={ODBC Driver 13 for SQL Server};\
-                                 SERVER=tcp:open-data.database.windows.net;\
-                                     DATABASE=environment_canada_db;\
-                                         UID={ubilab};\
-                                             PWD={Mandioca78}"
+                                 SERVER=wwwwwww;\
+                                     DATABASE=zzzzzz;\
+                                         UID={XXXXX};\
+                                             PWD={YYYYY}"
 
 downloadData(['155'], start=(2018,2), end=(2018,6))
 df = pd.read_csv('155.csv')
