@@ -239,4 +239,58 @@ def downloadData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'de
                         #print ('Failure getting data for '  + str(ID) + ' for year ' + str(intYr))
             
         data = data.dropna(axis = 0, how = 'all')
-        data.to_csv(path+downloadMethod+'Information.csv', index=False, line_terminator="")        
+        data.to_csv(path+downloadMethod+'Information.csv', index=False, line_terminator="")
+
+def to_sql(dataframe, conn_string, table_name, if_exists = 'append' ):
+    '''
+    Upload dataframe to sql server using pyodbc.
+    
+    dataframe: pandas.DataFrame
+        Dataframe containing the data.
+        
+    conn_string: string
+        Connection string to connect with the database.
+    
+    table_name: string
+        Name of the table to add the data.
+    
+    if_exists: string
+        Decides what to do if already exists the table given. "append" will append the data to the table.
+        "replace" will create a new table. "fail" will raise an error.
+    '''
+    
+    import urllib
+    from sqlalchemy import event, create_engine
+    
+    params = urllib.parse.quote_plus(conn_string)
+    
+    engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, pool_pre_ping=True)
+    
+    #It makes the upload faster
+    @event.listens_for(engine, 'before_cursor_execute')
+    def receive_before_cursor_execute(conn, cursor, statement, params, context, executemany):
+        if executemany:
+            cursor.fast_executemany = True
+            cursor.commit()
+    
+    conn = engine.connect()
+    dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists)
+    conn.close()
+    
+def from_sql(conn_string, sql_command):
+    import urllib
+    from sqlalchemy import create_engine
+    import pandas as pd
+    
+    params = urllib.parse.quote_plus(conn_string)
+    
+    engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, pool_pre_ping=True)
+    conn = engine.connect()
+    
+    SQL_Query = pd.read_sql_query(sql_command, conn)
+    conn.close()
+    
+    df = pd.DataFrame(SQL_Query)
+    df.columns = SQL_Query.keys()
+    
+    return df
