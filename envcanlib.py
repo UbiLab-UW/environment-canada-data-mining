@@ -6,28 +6,59 @@ Created on Wed Nov 30 23:35:15 2019
 @author: guilherme
 """
 
-def downloadData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default', 
-                 continuous = True, metaData = None,  fileName = None):
+def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default', 
+            continuous = True, metaData = None,  fileName = None, saveFile = True,
+            db_conn_string = None, db_table_name = None, if_exists_table = 'append'):
     '''
     Description: It downloads weather information from the Environment Canada website. 
     It is possible to download daily or hourly information in a slice of time passed as an argument.
     
-    Input: IDs:  list of the target stations IDs.
+    Input: 
+        IDs:  list
+            list of the target stations IDs.
     
-           start: A tuple with start year and start month.
+        start: tuple, list
+            A tuple with start year and start month.
            
-           end: A tuple with end year and end month.
+        end: tuple,list
+            A tuple with end year and end month.
            
-           method: 'hourly' for hourly information (default) or 'daily' for daily information.
+        method: string
+            'hourly' for hourly information (default) or 'daily' for daily information.
            
-           path: Path in the machine to save the data downloaded. Default is the path where the code is running.
+        path: string
+            Path in the machine to save the data downloaded. Default is the path where the code is running.
+            To use this option, make sure saveFile argument is True.
            
-           dataFormat: 'default' (each station has its own file) or 'oneFile' (just one file for all stations).
+        dataFormat: string
+            'default' (each station has its own file) or 'oneFile' (just one file for all stations).
            
-           continuous: If True the time passed will be considered as continuous, otherwise only months betwwen 
-           start month and end month will be downloaded. Default value is True.
+        continuous: bool
+            If True the time passed will be considered as continuous, otherwise only months betwwen 
+            start month and end month will be downloaded. Default value is True.
+        
+        metaData: pandas.DataFrame, optional
+            Dataframe containing information about the stations.
+        
+        fileName: string, optional
+            Dictionary to name each file.
            
-           fileName: Dictionary to name each file.
+        saveFile: bool, optional
+            If True then the dataframes will be saved in the machine.
+            
+        db_conn_string: string, optional
+            Connection string to connect to a server and then upload the data to it.
+            
+        db_table_name: string, optional
+            Name of the table to upload the data in case conn_string has been passed as well.
+            
+        if_exists_table: string
+            Decides what to do if already exists the table given. "append" will append the data to the table.
+            "replace" will create a new table. "fail" will raise an error. This have effect in case 
+            db_table_name and conn_string has been passed as well.
+            
+    Output: None
+        This function returns nothing.
     '''
     
     import pandas as pd
@@ -136,11 +167,16 @@ def downloadData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'de
                         #print ('Failure getting data for '  + str(ID) + ' for year ' + str(intYr))
             
             data = data.dropna(axis = 0, how = 'all')
+            data['Station ID'] = ID
             
-            if type(fileName) == dict:
-                data.to_csv(path+fileName[str(ID)]+".csv", index=False, line_terminator="")
-            else:
-                data.to_csv(path+str(ID)+".csv", index=False, line_terminator="")
+            if saveFile:
+                if type(fileName) == dict:
+                    data.to_csv(path+fileName[str(ID)]+".csv", index=False, line_terminator="")
+                else:
+                    data.to_csv(path+str(ID)+".csv", index=False, line_terminator="")
+                    
+            if type(db_conn_string) == str and type(db_table_name) == str:
+                to_sql(data, db_conn_string, db_table_name, if_exists_table)
             
     else:
         data = pd.DataFrame([])
@@ -239,9 +275,14 @@ def downloadData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'de
                         #print ('Failure getting data for '  + str(ID) + ' for year ' + str(intYr))
             
         data = data.dropna(axis = 0, how = 'all')
-        data.to_csv(path+downloadMethod+'Information.csv', index=False, line_terminator="")
+        
+        if saveFile:
+            data.to_csv(path+downloadMethod+'Information.csv', index=False, line_terminator="")
+            
+        if type(db_conn_string) == str and type(db_table_name) == str:
+            to_sql(data, db_conn_string, db_table_name, if_exists_table)
 
-def to_sql(dataframe, conn_string, table_name, if_exists = 'append' ):
+def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
     '''
     Upload dataframe to sql server using pyodbc.
     
@@ -257,6 +298,9 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append' ):
     if_exists: string
         Decides what to do if already exists the table given. "append" will append the data to the table.
         "replace" will create a new table. "fail" will raise an error.
+    
+    Output: None
+        It returns nothing.
     '''
     
     import urllib
@@ -277,11 +321,25 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append' ):
     dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists)
     conn.close()
     
-def from_sql(conn_string, sql_command):
+def from_sql(conn_string, table_name):
+    '''
+    Get Data from sql server from a specific table
+    
+    conn_string: string
+        Connection string to connect with the database.
+        
+    table_name: string
+        Name of the desired table to get the data.
+        
+    Output: pandas.DataFrame
+        It retunrs a dataframe containing the target data.
+    '''
+    
     import urllib
     from sqlalchemy import create_engine
     import pandas as pd
     
+    sql_command = '''SELECT * FROM [dbo].[%s] WHERE Province = 'QUEBEC' ''' %table_name
     params = urllib.parse.quote_plus(conn_string)
     
     engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, pool_pre_ping=True)
