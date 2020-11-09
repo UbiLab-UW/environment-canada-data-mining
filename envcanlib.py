@@ -304,7 +304,9 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
     '''
     
     import urllib
+    import sqlalchemy as sa
     from sqlalchemy import event, create_engine
+    
     
     params = urllib.parse.quote_plus(conn_string)
     
@@ -317,7 +319,14 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
             cursor.fast_executemany = True
             cursor.commit()
     
-    conn = engine.connect()
+    i = 0
+    while i < 10:
+        try:
+            conn = engine.connect()
+            break
+        except sa.exc.InterfaceError:
+            i+=1
+    
     dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists)
     conn.close()
     
@@ -336,6 +345,7 @@ def from_sql(conn_string, table_name):
     '''
     
     import urllib
+    import sqlalchemy as sa
     from sqlalchemy import create_engine
     import pandas as pd
     
@@ -343,7 +353,14 @@ def from_sql(conn_string, table_name):
     params = urllib.parse.quote_plus(conn_string)
     
     engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, pool_pre_ping=True)
-    conn = engine.connect()
+    
+    i = 0
+    while i < 10:
+        try:
+            conn = engine.connect()
+            break
+        except sa.exc.InterfaceError:
+            i+=1
     
     SQL_Query = pd.read_sql_query(sql_command, conn)
     conn.close()
