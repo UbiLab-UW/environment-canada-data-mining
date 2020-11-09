@@ -14,6 +14,6 @@ if asw  == 'Y' or asw == 'y':
         os.mkdir(path+'/lib/python3*/site-packages/envcanlib')
     except OSError:
         os.system('rm -rf '+path+'/lib/python3*/site-packages/envcanlib/*')
-    os.system('cp -r ./* '+path+'/lib/python3*/site-packages/envcanlib')
+    os.system('cp -r ./* '+path+'/lib/python3*/site-packages/envcanlib/')
 
 print('Installation has finished')
