@@ -88,7 +88,7 @@ metaData=None)
         
 **from_sql**(conn_string, table_name, table_rule=''):
 
-    Get Data from sql server from a specific table
+    Get Data from sql server of a specific table.
     
     Parameters:
     
@@ -106,7 +106,7 @@ metaData=None)
     Output: pandas.DataFrame
         It retunrs a dataframe containing the target data.
 
-## Dependencies
+## Python3 Library Dependencies
 
 - Numpy
 - Urllib3
@@ -114,7 +114,10 @@ metaData=None)
 - PyODBC
 - MySQL
 - SqlAlchemy
-- ODBC driver
+
+## Software Dependencies
+
+- ODBC 13 driver or newer.
 
 ## Installation
 
