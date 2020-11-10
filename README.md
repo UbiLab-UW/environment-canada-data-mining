@@ -1,5 +1,5 @@
 # Environment Canada Data Mining
-Python3 package to download information from Environment Canada: Whether Information
+Python3 package to download information from Environment Canada: Weather Information
 
 ### Authors
 
