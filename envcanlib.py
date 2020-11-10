@@ -14,13 +14,13 @@ def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default
     It is possible to download daily or hourly information in a slice of time passed as an argument.
     
     Input: 
-        IDs:  list
+        IDs: list of str
             list of the target stations IDs.
     
-        start: tuple, list
+        start: tuple, list of int
             A tuple with start year and start month.
            
-        end: tuple,list
+        end: tuple, list of int
             A tuple with end year and end month.
            
         method: string
@@ -290,7 +290,7 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
         Dataframe containing the data.
         
     conn_string: string
-        Connection string to connect with the database.
+        Connection string to connect to the database.
     
     table_name: string
         Name of the table to add the data.
@@ -304,9 +304,7 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
     '''
     
     import urllib
-    import sqlalchemy as sa
     from sqlalchemy import event, create_engine
-    
     
     params = urllib.parse.quote_plus(conn_string)
     
@@ -324,7 +322,7 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
         try:
             conn = engine.connect()
             break
-        except sa.exc.InterfaceError:
+        except:
             i+=1
     
     dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists)
@@ -335,7 +333,7 @@ def from_sql(conn_string, table_name):
     Get Data from sql server from a specific table
     
     conn_string: string
-        Connection string to connect with the database.
+        Connection string to connect to the database.
         
     table_name: string
         Name of the desired table to get the data.
@@ -345,7 +343,6 @@ def from_sql(conn_string, table_name):
     '''
     
     import urllib
-    import sqlalchemy as sa
     from sqlalchemy import create_engine
     import pandas as pd
     
@@ -359,7 +356,7 @@ def from_sql(conn_string, table_name):
         try:
             conn = engine.connect()
             break
-        except sa.exc.InterfaceError:
+        except:
             i+=1
     
     SQL_Query = pd.read_sql_query(sql_command, conn)
