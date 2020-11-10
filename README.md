@@ -111,8 +111,8 @@ metaData=None)
 - Numpy
 - Urllib3
 - Pandas
-- PyODBC
-- MySQL
+- Pyodbc
+- MySql
 - SqlAlchemy
 
 ## Software Dependencies
