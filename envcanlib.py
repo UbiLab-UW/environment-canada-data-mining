@@ -328,7 +328,7 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
     dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists)
     conn.close()
     
-def from_sql(conn_string, table_name):
+def from_sql(conn_string, table_name, table_rule=''):
     '''
     Get Data from sql server from a specific table
     
@@ -337,6 +337,11 @@ def from_sql(conn_string, table_name):
         
     table_name: string
         Name of the desired table to get the data.
+    
+    table_rule: string
+        Rule to filter data. For instance, if you want all data where
+        collumn Province has value equal "QUEBEC" then do 
+        table_rule = 'WHERE Province = "QUEBEC"'. Default is a blank string.
         
     Output: pandas.DataFrame
         It retunrs a dataframe containing the target data.
@@ -346,7 +351,7 @@ def from_sql(conn_string, table_name):
     from sqlalchemy import create_engine
     import pandas as pd
     
-    sql_command = '''SELECT * FROM [dbo].[%s] WHERE Province = 'QUEBEC' ''' %table_name
+    sql_command = '''SELECT * FROM [dbo].[%s] %s ''' %(table_name, table_rule)
     params = urllib.parse.quote_plus(conn_string)
     
     engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, pool_pre_ping=True)
