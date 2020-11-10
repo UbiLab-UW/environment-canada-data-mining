@@ -324,6 +324,9 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
             break
         except:
             i+=1
+
+    if i == 10:
+        raise Exception("10 attempts to connect have been made but none of them had success. Check out the Connection String and make sure you have passed valid values.")
     
     dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists)
     conn.close()
@@ -363,6 +366,9 @@ def from_sql(conn_string, table_name, table_rule=''):
             break
         except:
             i+=1
+        
+    if i == 10:
+        raise Exception("10 attempts to connect have been made but none of them had success. Check out the Connection String and make sure you have passed valid values.")
     
     SQL_Query = pd.read_sql_query(sql_command, conn)
     conn.close()
