@@ -72,6 +72,7 @@ def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default
     
     import pandas as pd
     import urllib.request as url
+    from gc import collect
     
     if start[0] > end[0]:
         raise ValueError('Start year is greater than end year')
@@ -186,7 +187,8 @@ def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default
                     
             if type(db_conn_string) == str and type(db_table_name) == str:
                 to_sql(data, db_conn_string, db_table_name, if_exists_table)
-            
+                
+            collect()
     else:
         data = pd.DataFrame([])
         for ID in IDs:
@@ -290,6 +292,8 @@ def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default
             
         if type(db_conn_string) == str and type(db_table_name) == str:
             to_sql(data, db_conn_string, db_table_name, if_exists_table)
+        
+        collect()
 
 def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
     '''
@@ -362,6 +366,7 @@ def from_sql(conn_string, table_name, table_rule=''):
     import urllib
     from sqlalchemy import create_engine
     import pandas as pd
+    from gc import collect
     
     sql_command = '''SELECT * FROM [dbo].[%s] %s ''' %(table_name, table_rule)
     params = urllib.parse.quote_plus(conn_string)
@@ -385,4 +390,5 @@ def from_sql(conn_string, table_name, table_rule=''):
     df = pd.DataFrame(SQL_Query)
     df.columns = SQL_Query.keys()
     
+    collect()
     return df
