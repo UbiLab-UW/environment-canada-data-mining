@@ -70,6 +70,7 @@ def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default
         This function returns nothing.
     '''
     
+    import numpy as np
     import pandas as pd
     import urllib.request as url
     from gc import collect
@@ -131,10 +132,13 @@ def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default
                                         d[i].append('')
                                     
                             newData = pd.DataFrame(d, columns=columns)
+                            newData['Temp (°C)'].replace('', np.nan, inplace=True)
+                            newData.dropna(subset=['Temp (°C)'], inplace=True)
+                            
                             data = data.append(newData, ignore_index=True, sort=False)
                         except Exception:
                             pass
-                            #print ('Failure getting data for '  + str(ID) + ' for year ' + str(intYr) + '. ',e)
+                            print('Failure getting data for '  + str(ID) + ' for year ' + str(intYr) + '. ')
                 else:
                     #build the query
                     strQry = 'http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID=' + str(ID) + "&Year=" + str(intYr) + method 
@@ -171,10 +175,15 @@ def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default
                             
                         if not continuous:
                             data = data[(data['Month'] <= end[1]) & (data['Month'] >= start[1])]
-    
+                        
+                        
+                        data['Max Temp (°C)'].replace('', np.nan, inplace=True)
+                        data['Min Temp (°C)'].replace('', np.nan, inplace=True)
+                        data.dropna(subset=['Max Temp (°C)'], inplace=True)
+                        data.dropna(subset=['Min Temp (°C)'], inplace=True)
                     except Exception:
                         pass
-                        #print ('Failure getting data for '  + str(ID) + ' for year ' + str(intYr))
+                        print('Failure getting data for '  + str(ID) + ' for year ' + str(intYr))
             
             data = data.dropna(axis = 0, how = 'all')
             data['Station ID'] = ID
