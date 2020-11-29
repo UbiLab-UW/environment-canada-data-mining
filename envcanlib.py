@@ -353,7 +353,7 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
     dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists)
     conn.close()
     
-def from_sql(conn_string, table_name, table_rule=''):
+def from_sql(conn_string, table_name, columns='*', table_rule=''):
     '''
     Get Data from sql server from a specific table
     
@@ -362,6 +362,9 @@ def from_sql(conn_string, table_name, table_rule=''):
         
     table_name: string
         Name of the desired table to get the data.
+    
+    columns: string
+        String containing columns to be selected. Default is * which means all.
     
     table_rule: string
         Rule to filter data. For instance, if you want all data where
@@ -377,7 +380,7 @@ def from_sql(conn_string, table_name, table_rule=''):
     import pandas as pd
     from gc import collect
     
-    sql_command = '''SELECT * FROM [dbo].[%s] %s ''' %(table_name, table_rule)
+    sql_command = '''SELECT %s FROM [dbo].[%s] %s ''' %(columns, table_name, table_rule)
     params = urllib.parse.quote_plus(conn_string)
     
     engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params, pool_pre_ping=True)
