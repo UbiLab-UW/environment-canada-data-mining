@@ -86,7 +86,7 @@ metaData=None)
     Output: None
         It returns nothing.
         
-**from_sql**(conn_string, table_name, table_rule=''):
+**from_sql**(conn_string, table_name, columns='*', table_rule=''):
 
     Get Data from sql server of a specific table.
     
@@ -97,6 +97,9 @@ metaData=None)
             
         table_name: string
             Name of the desired table to get the data.
+
+        columns: string
+            String containing columns to be selected. Default is "*", which means all.
         
         table_rule: string
             Rule to filter data. For instance, if you want all data where
