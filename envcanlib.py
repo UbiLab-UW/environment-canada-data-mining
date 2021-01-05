@@ -304,7 +304,7 @@ def getData(IDs, start, end, method = 'hourly', path = '', dataFormat = 'default
         
         collect()
 
-def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
+def to_sql(dataframe, conn_string, table_name, if_exists = 'append', index=True):
     '''
     Upload dataframe to sql server using pyodbc.
     
@@ -350,7 +350,7 @@ def to_sql(dataframe, conn_string, table_name, if_exists = 'append'):
     if i == 10:
         raise AttemptsToConnectExceeded()
     
-    dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists)
+    dataframe.to_sql(name=table_name, con=conn, if_exists=if_exists, index=index)
     conn.close()
     
 def from_sql(conn_string, table_name, columns='*', table_rule=''):
